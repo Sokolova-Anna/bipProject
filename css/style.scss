@@ -1,0 +1,12 @@
+@import "reset.scss";
+
+@font-face {
+    font-family: 'Commissioner';
+    font-weight: 500;
+    src: url('../fonts/CommissionerFlair-Medium.ttf');
+}
+
+body {
+    font-family: 'Commissioner';
+    font-weight: 500;
+}
