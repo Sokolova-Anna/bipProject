@@ -9,4 +9,39 @@
 body {
     font-family: 'Commissioner';
     font-weight: 500;
+    font-size: 16px;
 }
+
+.container {
+    margin: 0 auto;
+    padding: 0 10px;
+    max-width: 1400px;
+}
+
+.header {
+    &__container {
+        display: flex;
+        justify-content: space-between;
+    }
+    &__nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;  
+        
+        &-items:not(:first-child) {
+            margin-left: 20px;
+        }
+        min-width: 500px;
+    }
+    &__contacts {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    &__phone {
+        margin-left: 10px;
+    }
+}
+
+
+
