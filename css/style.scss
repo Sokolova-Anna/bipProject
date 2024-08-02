@@ -5,7 +5,11 @@
     font-weight: 500;
     src: url('../fonts/CommissionerFlair-Medium.ttf');
 }
-
+@font-face {
+    font-family: 'Commissioner';
+    font-weight: 600;
+    src: url('../fonts/CommissionerFlair-SemiBold.ttf');
+}
 body {
     font-family: 'Commissioner';
     font-weight: 500;
@@ -43,5 +47,55 @@ body {
     }
 }
 
+.description {
+    
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+
+    &__background {
+        position: absolute;
+        top:0;
+        right: 0;
+        z-index: -1;
+    }
+
+    &__dog {
+        position: absolute;
+        right: 0;
+        top: 30px;
+    }
+
+    &__text {
+        max-width: 50%;
+        margin-top: 90px;
+    }
+
+    &__title {
+        font-size: 48px;
+        font-weight: 600;
+        span {
+            color: #018FA3;
+        }
+    }
+
+    &__subtite {
+        font-size: 24px;
+        margin-top: 44px;
+        max-width: 80%;
+    }
+
+    &__auth {
+        width: 244px;
+        height: 65px;
+        text-align: center;
+        border: 0;
+        border-radius:30px;
+        background-color: #FAE01A;
+        font-size: 20px;
+        margin-top: 44px;
+    }
+
+}
 
 

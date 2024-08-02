@@ -338,6 +338,11 @@ a {
   font-weight: 500;
   src: url("../fonts/CommissionerFlair-Medium.ttf");
 }
+@font-face {
+  font-family: "Commissioner";
+  font-weight: 600;
+  src: url("../fonts/CommissionerFlair-SemiBold.ttf");
+}
 body {
   font-family: "Commissioner";
   font-weight: 500;
@@ -386,4 +391,51 @@ body {
 }
 .header__phone {
   margin-left: 10px;
+}
+
+.description {
+  margin-top: 30px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+.description__background {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: -1;
+}
+.description__dog {
+  position: absolute;
+  right: 0;
+  top: 30px;
+}
+.description__text {
+  max-width: 50%;
+  margin-top: 90px;
+}
+.description__title {
+  font-size: 48px;
+  font-weight: 600;
+}
+.description__title span {
+  color: #018FA3;
+}
+.description__subtite {
+  font-size: 24px;
+  margin-top: 44px;
+  max-width: 80%;
+}
+.description__auth {
+  width: 244px;
+  height: 65px;
+  text-align: center;
+  border: 0;
+  border-radius: 30px;
+  background-color: #FAE01A;
+  font-size: 20px;
+  margin-top: 44px;
 }
