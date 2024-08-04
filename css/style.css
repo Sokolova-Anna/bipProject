@@ -531,7 +531,7 @@ body {
 }
 .funfact__backround-1 {
   position: absolute;
-  top: 200px;
+  top: 150px;
   right: 40px;
 }
 .funfact__backround-2 {
@@ -555,4 +555,13 @@ body {
   position: absolute;
   left: 60px;
   top: 40px;
+}
+
+.footer {
+  margin-top: 600px;
+  background-color: #018FA3;
+  height: 155px;
+}
+.footer__logo {
+  padding-top: 26px;
 }

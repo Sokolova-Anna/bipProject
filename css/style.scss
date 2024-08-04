@@ -199,7 +199,7 @@ body {
 
     &__backround-1 {
         position: absolute;
-        top: 200px;
+        top: 150px;
         right: 40px;
     }
 
@@ -235,4 +235,13 @@ body {
     }
 }
 
+.footer {
+    margin-top: 600px;
+   // margin-bottom: 0;
+    background-color: #018FA3;
+    height: 155px;
 
+    &__logo {
+        padding-top: 26px;
+    }
+}
