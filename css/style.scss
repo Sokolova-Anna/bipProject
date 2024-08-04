@@ -23,6 +23,7 @@ body {
 }
 
 .header {
+    z-index: 10;
     &__container {
         display: flex;
         justify-content: space-between;
@@ -35,7 +36,21 @@ body {
         &-items:not(:first-child) {
             margin-left: 20px;
         }
+
         min-width: 500px;
+
+        &-items {
+            transition-duration: 0.5s;
+            cursor: pointer;
+
+            &:hover {
+                color: #018FA3;
+            }
+
+            &:active {
+                color: #025f6c;
+            }
+        }
     }
     &__contacts {
         display: flex;
@@ -53,17 +68,19 @@ body {
     display: flex;
     justify-content: space-between;
 
+  //  position: relative;
     &__background {
         position: absolute;
         top:0;
         right: 0;
-        z-index: -1;
+        z-index: -2;
     }
 
     &__dog {
         position: absolute;
         right: 0;
         top: 30px;
+        z-index: -1;
     }
 
     &__text {
@@ -94,8 +111,128 @@ body {
         background-color: #FAE01A;
         font-size: 20px;
         margin-top: 44px;
+
+        &:hover {
+            background-color: #018FA3;
+            color: white;
+        }
+
+        &:active {
+            background-color: #025f6c;
+            color: white;            
+        }
+
+        transition-duration: 0.5s;
     }
 
+}
+
+.facts {
+    margin-top: 300px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    
+    position: relative;
+
+    &__item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__left {
+       //position: relative;
+    }
+
+    &__backround-1 {
+        position: absolute;
+        top: 80px;
+        left: 40px;
+    }
+
+    &__backround-2 {
+        position: absolute;
+        top: 150px;
+        left: 80px;
+    }
+
+    &__text {
+        position: absolute;
+        z-index: 1;
+        top: 180px;
+        left: 130px;
+
+        max-width: 340px;
+    }
+
+    &__right {
+        position: relative;
+    }
+
+    &__border {
+        position: absolute;
+        right: 0;
+        top: 20px;
+    }
+
+    &__dog {
+        position: absolute;
+        right: 20px;
+    }
+}
+
+.funfact {
+    margin-top: 400px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    position: relative;
+
+    &__item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__left {
+       //position: relative;
+    }
+
+    &__backround-1 {
+        position: absolute;
+        top: 200px;
+        right: 40px;
+    }
+
+    &__backround-2 {
+        position: absolute;
+        top: 120px;
+        right: 80px;
+    }
+
+    &__text {
+        position: absolute;
+        z-index: 1;
+        top: 145px;
+        right: 145px;
+
+        max-width: 340px;
+    }
+
+    &__right {
+     //   position: relative;
+    }
+
+    &__border {
+        position: absolute;
+        left: 40px;
+        top: 20px;
+    }
+
+    &__dog {
+        position: absolute;
+        left: 60px;
+        top: 40px;
+    }
 }
 
 

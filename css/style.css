@@ -355,6 +355,9 @@ body {
   max-width: 1400px;
 }
 
+.header {
+  z-index: 10;
+}
 .header__container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -377,6 +380,17 @@ body {
 }
 .header__nav-items:not(:first-child) {
   margin-left: 20px;
+}
+.header__nav-items {
+  -webkit-transition-duration: 0.5s;
+          transition-duration: 0.5s;
+  cursor: pointer;
+}
+.header__nav-items:hover {
+  color: #018FA3;
+}
+.header__nav-items:active {
+  color: #025f6c;
 }
 .header__contacts {
   display: -webkit-box;
@@ -406,12 +420,13 @@ body {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: -1;
+  z-index: -2;
 }
 .description__dog {
   position: absolute;
   right: 0;
   top: 30px;
+  z-index: -1;
 }
 .description__text {
   max-width: 50%;
@@ -438,4 +453,106 @@ body {
   background-color: #FAE01A;
   font-size: 20px;
   margin-top: 44px;
+  -webkit-transition-duration: 0.5s;
+          transition-duration: 0.5s;
+}
+.description__auth:hover {
+  background-color: #018FA3;
+  color: white;
+}
+.description__auth:active {
+  background-color: #025f6c;
+  color: white;
+}
+
+.facts {
+  margin-top: 300px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  position: relative;
+}
+.facts__item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.facts__backround-1 {
+  position: absolute;
+  top: 80px;
+  left: 40px;
+}
+.facts__backround-2 {
+  position: absolute;
+  top: 150px;
+  left: 80px;
+}
+.facts__text {
+  position: absolute;
+  z-index: 1;
+  top: 180px;
+  left: 130px;
+  max-width: 340px;
+}
+.facts__right {
+  position: relative;
+}
+.facts__border {
+  position: absolute;
+  right: 0;
+  top: 20px;
+}
+.facts__dog {
+  position: absolute;
+  right: 20px;
+}
+
+.funfact {
+  margin-top: 400px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  position: relative;
+}
+.funfact__item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.funfact__backround-1 {
+  position: absolute;
+  top: 200px;
+  right: 40px;
+}
+.funfact__backround-2 {
+  position: absolute;
+  top: 120px;
+  right: 80px;
+}
+.funfact__text {
+  position: absolute;
+  z-index: 1;
+  top: 145px;
+  right: 145px;
+  max-width: 340px;
+}
+.funfact__border {
+  position: absolute;
+  left: 40px;
+  top: 20px;
+}
+.funfact__dog {
+  position: absolute;
+  left: 60px;
+  top: 40px;
 }
