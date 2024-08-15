@@ -632,7 +632,46 @@ body {
   font-size: 24px;
   margin-left: 50px;
 }
+.alert__header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.alert__close {
+  max-width: 40px;
+  max-height: 40px;
+  margin-top: 7px;
+  cursor: pointer;
+}
 
 .hide {
   display: none;
+}
+
+.marks__desc {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+.marks__item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.marks__item:not(:last-child) {
+  margin-right: 30px;
+}
+.marks__text {
+  margin-left: 15px;
+  margin-top: 7px;
+}
+
+iframe {
+  margin: 0 auto;
+  margin-top: 45px;
+  -webkit-box-shadow: 4px 2px 36px 0px rgba(34, 60, 80, 0.2);
+  box-shadow: 4px 2px 36px 0px rgba(34, 60, 80, 0.2);
 }

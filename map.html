@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="icon" href="./images/paw.png" type="image/png">
+    <title>Paw-path (map)</title>
+</head>
+<body>
+    <header class="header">
+        <div class="container header__container">
+            <img class="header__logo" src="./images/paw.png" alt="logo">
+            <ul class="header__nav">
+                <li class="header__nav-items header__main">Главная</li>
+                <li class="header__nav-items header__map">Карта прогулок</li>
+                <li class="header__nav-items">Поиск ситтеров</li>
+            </ul> 
+            <div class="header__contacts">
+                <img src="./images/phone.png" alt="" class="header__contacts-img">
+                <p class="header__phone">8 (771) 145-98-26</p>
+            </div>   
+        </div>
+    </header>
+    <script src="./js/script.js"></script>
+    <main>
+        <section class="marks">
+            <div class="container marks__container">
+                <div class="marks__desc">
+                    <div class="marks__item">
+                        <img src="./images/park_mark.png" alt="" class="marks__img">
+                        <p class="marks__text">Парки / места для прогулок</p>
+                    </div>
+                    <div class="marks__item">
+                        <img src="./images/dog-friendly.png" alt="" class="marks__img">
+                        <p class="marks__text">Dog-friendly заведения</p>
+                    </div>
+                    <div class="marks__item">
+                        <img src="./images/mark_commands.png" alt="" class="marks__img">
+                        <p class="marks__text">Места, оборудованные для дрессировки</p>
+                    </div>
+                </div>
+                <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ac27ae989a83c2bc05c1467d53670e6bea9ec00c4a25f7cadc397e3616625e464&amp;width=900&amp;height=500&amp;lang=en_FR&amp;scroll=true" class="map"></script>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

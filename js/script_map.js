@@ -9,12 +9,10 @@ ButtonAuth.forEach(item => { item.addEventListener("click", (e) => {
 
 
 const ButtonCloseAuth = document.querySelector('.alert__close');
-if (ButtonCloseAuth) {
-    ButtonCloseAuth.addEventListener("click", (e) => {
-        e.preventDefault(); 
-        authForm.classList.add("hide");   
-    })
-}
+ButtonCloseAuth.addEventListener("click", (e) => {
+    e.preventDefault(); 
+    authForm.classList.add("hide");   
+})
 
 const ButtonHeaderMap = document.querySelector('.header__map');
 ButtonHeaderMap.addEventListener("click", () => {
@@ -25,3 +23,6 @@ const ButtonHeaderMain = document.querySelector('.header__main');
 ButtonHeaderMain.addEventListener("click", () => {
     location='index.html'
 })
+
+
+

@@ -12,8 +12,8 @@
         <div class="container header__container">
             <img class="header__logo" src="./images/paw.png" alt="logo">
             <ul class="header__nav">
-                <li class="header__nav-items">Главная</li>
-                <li class="header__nav-items">Карта прогулок</li>
+                <li class="header__nav-items header__main">Главная</li>
+                <li class="header__nav-items header__map">Карта прогулок</li>
                 <li class="header__nav-items">Поиск ситтеров</li>
             </ul> 
             <div class="header__contacts">
@@ -67,7 +67,10 @@
         </section>
         <section class="alert hide">
             <div class="container alert__conatiner">
-                <h3 class="alert__title">Мы рады вас приветствовать!</h3> 
+                <div class="alert__header">
+                    <h3 class="alert__title">Мы рады вас приветствовать!</h3>
+                    <img src="./images/close.png" alt="close" class="alert__close">
+                </div> 
                 <div class="alert__data">
                     <input type="text" class="alert__input" type="text" placeholder="Ваше имя...">
                     <input type="text" class="alert__input" type="text" placeholder="Ваш телефон...">
