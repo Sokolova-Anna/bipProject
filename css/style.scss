@@ -249,6 +249,10 @@ body {
     &__logo {
         padding-top: 26px;
     }
+
+    &__map {
+        margin-top: 100px;
+    }
 }
 
 .alert {
@@ -336,10 +340,16 @@ body {
 }
 
 .marks {
+    margin-top: 70px;
+    &__container {
+        top: 10px;
+        padding: 0 30px;
+    }
+
     &__desc {
         display: flex;
         justify-content: space-between;
-
+        padding: 0 70px;
     }
 
     &__item {
@@ -354,6 +364,31 @@ body {
         margin-left: 15px;
         margin-top: 7px;
     }
+
+    &__add {
+        width: 244px;
+        height: 40px;
+        text-align: center;
+        border: 0;
+        border-radius:30px;
+        background-color: #FAE01A;
+        font-size: 18px;
+        margin-top: 44px;
+        margin-left: 240px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        &:hover {
+            background-color: #018FA3;
+            color: white;
+        }
+
+        &:active {
+            background-color: #025f6c;
+            color: white;            
+        }
+
+        transition-duration: 0.5s;
+    }
 }
 
 iframe {
@@ -364,3 +399,4 @@ iframe {
     -moz-box-shadow: 4px 2px 36px 0px rgba(34, 60, 80, 0.2);
     box-shadow: 4px 2px 36px 0px rgba(34, 60, 80, 0.2);
 }
+

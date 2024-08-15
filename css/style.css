@@ -571,6 +571,9 @@ body {
 .footer__logo {
   padding-top: 26px;
 }
+.footer__map {
+  margin-top: 100px;
+}
 
 .alert {
   position: fixed;
@@ -648,6 +651,13 @@ body {
   display: none;
 }
 
+.marks {
+  margin-top: 70px;
+}
+.marks__container {
+  top: 10px;
+  padding: 0 30px;
+}
 .marks__desc {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -655,6 +665,7 @@ body {
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
+  padding: 0 70px;
 }
 .marks__item {
   display: -webkit-box;
@@ -667,6 +678,29 @@ body {
 .marks__text {
   margin-left: 15px;
   margin-top: 7px;
+}
+.marks__add {
+  width: 244px;
+  height: 40px;
+  text-align: center;
+  border: 0;
+  border-radius: 30px;
+  background-color: #FAE01A;
+  font-size: 18px;
+  margin-top: 44px;
+  margin-left: 240px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  -webkit-transition-duration: 0.5s;
+          transition-duration: 0.5s;
+}
+.marks__add:hover {
+  background-color: #018FA3;
+  color: white;
+}
+.marks__add:active {
+  background-color: #025f6c;
+  color: white;
 }
 
 iframe {
