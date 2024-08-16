@@ -29,7 +29,7 @@ if (ButtonHeaderMain) {
         location='index.html'
     })
 }
-
+let ymaps
 ymaps.ready(function () {
     let myMap = new ymaps.Map("YMapsID", {
       center: [59.93, 30.31], //saint-p
