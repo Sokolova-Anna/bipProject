@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="./css/style.css">
     <link rel="icon" href="./images/paw.png" type="image/png">
     <title>Paw-path (map)</title>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=a1d4d468-446a-4469-a024-4dbfcba8fbee&lang=ru_RU"
+    type="text/javascript">
+    </script>
 </head>
 <body>
     <header class="header">
@@ -40,7 +43,8 @@
                         <p class="marks__text">Места, оборудованные для дрессировки</p>
                     </div>
                 </div>
-                <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ac27ae989a83c2bc05c1467d53670e6bea9ec00c4a25f7cadc397e3616625e464&amp;width=900&amp;height=500&amp;lang=en_FR&amp;scroll=true" class="map"></script>
+                <!--<script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ac27ae989a83c2bc05c1467d53670e6bea9ec00c4a25f7cadc397e3616625e464&amp;width=800&amp;height=500&amp;lang=en_FR&amp;scroll=true" class="map"></script>-->
+                <div id="YMapsID" style="width: 900px; height: 500px;" class="marks__map"></div>
                 <button class="marks__add">Добавить новое место</button>
             </div>
         </section>

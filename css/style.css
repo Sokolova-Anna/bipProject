@@ -703,7 +703,7 @@ body {
   color: white;
 }
 
-iframe {
+.marks__map {
   margin: 0 auto;
   margin-top: 45px;
   -webkit-box-shadow: 4px 2px 36px 0px rgba(34, 60, 80, 0.2);
