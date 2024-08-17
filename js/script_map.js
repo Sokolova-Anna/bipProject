@@ -1,6 +1,3 @@
-
-//--кнопка регистрации на главном экране
-
 ymaps.ready(function () {
     let myMap = new ymaps.Map("YMapsID", {
       center: [59.93, 30.31], //saint-p
@@ -30,16 +27,3 @@ ymaps.ready(function () {
     myMap.geoObjects.add(myPlacemark1);
     myMap.geoObjects.add(myPlacemark2);
   });
-
-//const ButtonHeaderMap = document.querySelector('.header__map');
-//ButtonHeaderMap.addEventListener("click", () => {
-//    location='map.html'
-//})
-//
-//const ButtonHeaderMain = document.querySelector('.header__main');
-//ButtonHeaderMain.addEventListener("click", () => {
-//    location='index.html'
-//})
-//
-//
-
