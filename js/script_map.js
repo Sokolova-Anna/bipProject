@@ -2,6 +2,9 @@ let listMarks = []
 const placeForm = document.querySelector('.place');
 const BlackBackground = document.querySelector('.image');
 const ButtonPlaceClose = document.querySelector('.place__close');
+const ButtonReviewClose = document.querySelector('.review__close');
+const ReviewForm = document.querySelector('.review'); 
+const ReviewAdd = document.querySelector('.place__add-review');
 
 ymaps.ready(function () {
     let myMap = new ymaps.Map("YMapsID", {
@@ -66,3 +69,13 @@ if (ButtonPlaceClose) {
     })
 }
 
+if (ButtonReviewClose) {
+    ButtonReviewClose.addEventListener("click", (e) => {
+        e.preventDefault(); 
+        ReviewForm.classList.add("hide");   
+    })
+}
+
+if (ReviewAdd) {
+    ReviewForm.classList.remove("hide");      
+}
