@@ -77,5 +77,7 @@ if (ButtonReviewClose) {
 }
 
 if (ReviewAdd) {
-    ReviewForm.classList.remove("hide");      
+    ReviewAdd.addEventListener("click", () => {
+        ReviewForm.classList.remove("hide");  
+    })    
 }
