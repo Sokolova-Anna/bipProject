@@ -1,4 +1,7 @@
 let listMarks = []
+const placeForm = document.querySelector('.place');
+const BlackBackground = document.querySelector('.image');
+const ButtonPlaceClose = document.querySelector('.place__close');
 
 ymaps.ready(function () {
     let myMap = new ymaps.Map("YMapsID", {
@@ -47,9 +50,19 @@ ymaps.ready(function () {
     listMarks.forEach(item => { item.events.add("click", (e) => {
         e.preventDefault();
         let coords = e.get('coords');   
-        console.log(coords) 
-
+        if (item.geometry._coordinates[0] == '59.946200' && item.geometry._coordinates[1] == '30.373191') 
+            placeForm.classList.remove('hide');
+            BlackBackground.classList.remove('hide');
     }); });
 
   });
+
+
+if (ButtonPlaceClose) {
+    ButtonPlaceClose.addEventListener("click", (e) => {
+        e.preventDefault(); 
+        placeForm.classList.add("hide");   
+        BlackBackground.classList.add('hide');
+    })
+}
 
