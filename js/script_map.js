@@ -1,10 +1,15 @@
 let listMarks = []
 const placeForm = document.querySelector('.place');
 const BlackBackground = document.querySelector('.image');
+const NewForm = document.querySelector('.new');
+
 const ButtonPlaceClose = document.querySelector('.place__close');
 const ButtonReviewClose = document.querySelector('.review__close');
+const ButtonNewReviewClose = document.querySelector('.new__close');
+
 const ReviewForm = document.querySelector('.review'); 
 const ReviewAdd = document.querySelector('.place__add-review');
+const NewMarkAdd = document.querySelector('.marks__add');
 
 ymaps.ready(function () {
     let myMap = new ymaps.Map("YMapsID", {
@@ -72,12 +77,29 @@ if (ButtonPlaceClose) {
 if (ButtonReviewClose) {
     ButtonReviewClose.addEventListener("click", (e) => {
         e.preventDefault(); 
-        ReviewForm.classList.add("hide");   
+        ReviewForm.classList.add("hide"); 
+        placeForm.style.filter='none'; 
     })
 }
 
 if (ReviewAdd) {
     ReviewAdd.addEventListener("click", () => {
-        ReviewForm.classList.remove("hide");  
+        ReviewForm.classList.remove("hide"); 
+        placeForm.style.filter='blur(5px)';
     })    
+}
+
+if (NewMarkAdd) {
+    NewMarkAdd.addEventListener("click", () => {
+        NewForm.classList.remove("hide"); 
+        BlackBackground.classList.remove('hide');
+    })    
+}
+
+if (ButtonNewReviewClose) {
+    ButtonNewReviewClose.addEventListener("click", (e) => {
+        e.preventDefault(); 
+        NewForm.classList.add("hide"); 
+        BlackBackground.classList.add('hide');
+    })
 }
