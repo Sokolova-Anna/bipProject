@@ -78,6 +78,23 @@ def register():
         logging.exception("Error during registration")
         return jsonify({'error': 'Something went wrong'}), 500
 
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    login = data.get('login')  # Get the login field
+    email = data.get('email')  # Get the email field
+    password = data.get('password')
+
+    # Query the user by both login and email
+    user = User.query.filter_by(login=login, email=email).first()
+
+    if user and bcrypt.check_password_hash(user.password, password):
+        # Return the user’s login as part of the response
+        return jsonify({'message': 'Login successful!', 'login': user.login}), 200
+    else:
+        return jsonify({'error': 'Invalid credentials'}), 400
+
+
 @app.route('/')
 def serve_index():
     return send_from_directory('frontend', 'index.html')
