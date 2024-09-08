@@ -7,6 +7,7 @@ import pyotp
 import qrcode
 from io import BytesIO
 from flask import send_file
+from flask_swagger_ui import get_swaggerui_blueprint
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -21,6 +22,23 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+
+# Swagger configuration
+SWAGGER_URL = '/swagger'  # Swagger UI will be available at localhost:5000/swagger
+API_URL = '/static/swagger.yaml'  # Path to the Swagger YAML file
+
+# Swagger UI blueprint setup
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "PawPath API"}
+)
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
+@app.route('/static/swagger.yaml')
+def swagger_yaml():
+    return send_from_directory('.', 'swagger.yaml')
 
 # Define the User model
 class User(db.Model):
@@ -44,6 +62,26 @@ class User(db.Model):
         self.pet_name = pet_name
         self.pet_breed = pet_breed
         self.totp_secret = pyotp.random_base32()
+
+# Define the MapLocation model
+class MapLocation(db.Model):
+
+    __tablename__ = 'map_locations'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    place_type = db.Column(db.String(50), nullable=False)
+
+    def __init__(self, title, description, latitude, longitude, place_type):
+        self.title = title
+        self.description = description
+        self.latitude = latitude
+        self.longitude = longitude
+        self.place_type = place_type
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -134,6 +172,60 @@ def verify_totp():
         return jsonify({'message': 'TOTP verified successfully!'}), 200
     else:
         return jsonify({'error': 'Invalid TOTP code'}), 400
+
+@app.route('/save_location', methods=['POST'])
+def save_location():
+    try:
+        data = request.get_json()
+        title = data.get('title')
+        description = data.get('description')
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+        place_type = data.get('place_type')
+
+        # Validate the data
+        if not title or not latitude or not longitude or not place_type:
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        # Create a new map location object
+        new_location = MapLocation(
+            title=title,
+            description=description,
+            latitude=latitude,
+            longitude=longitude,
+            place_type=place_type
+        )
+
+        # Save the new location to the database
+        db.session.add(new_location)
+        db.session.commit()
+
+        return jsonify({'message': 'Location saved successfully!'}), 201
+
+    except Exception as e:
+        logging.exception("Error during saving location")  # This logs the detailed error
+        return jsonify({'error': 'Failed to save location', 'details': str(e)}), 500
+
+@app.route('/get_locations', methods=['GET'])
+def get_locations():
+    try:
+        # Fetch all locations from the database
+        locations = MapLocation.query.all()
+
+        # Convert the location objects to a list of dictionaries
+        locations_list = [{
+            'id': loc.id,
+            'title': loc.title,
+            'description': loc.description,
+            'latitude': loc.latitude,
+            'longitude': loc.longitude,
+            'place_type': loc.place_type
+        } for loc in locations]
+
+        return jsonify(locations_list), 200
+    except Exception as e:
+        logging.exception("Error retrieving locations")
+        return jsonify({'error': 'Failed to retrieve locations'}), 500
 
 @app.route('/')
 def serve_index():
