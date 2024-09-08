@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 import logging
 from flask_cors import CORS
+import pyotp
+import qrcode
+from io import BytesIO
+from flask import send_file
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -30,6 +34,7 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     pet_name = db.Column(db.String(50), nullable=True)
     pet_breed = db.Column(db.String(50), nullable=True)
+    totp_secret = db.Column(db.String(100), nullable=True)  # TOTP
 
     def __init__(self, name, email, login, password, pet_name, pet_breed):
         self.name = name
@@ -38,6 +43,7 @@ class User(db.Model):
         self.password = password
         self.pet_name = pet_name
         self.pet_breed = pet_breed
+        self.totp_secret = pyotp.random_base32()
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -72,7 +78,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        return jsonify({'message': 'User registered successfully!'}), 201
+        return jsonify({'message': 'User registered successfully!', 'user_id': new_user.id}), 201
 
     except Exception as e:
         logging.exception("Error during registration")
@@ -81,19 +87,53 @@ def register():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    login = data.get('login')  # Get the login field
-    email = data.get('email')  # Get the email field
+    login = data.get('login')
+    email = data.get('email')
     password = data.get('password')
 
-    # Query the user by both login and email
     user = User.query.filter_by(login=login, email=email).first()
 
     if user and bcrypt.check_password_hash(user.password, password):
-        # Return the user’s login as part of the response
-        return jsonify({'message': 'Login successful!', 'login': user.login}), 200
+        # Return a prompt for TOTP verification
+        return jsonify({'message': 'Login successful, please verify with TOTP', 'user_id': user.id}), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 400
 
+
+@app.route('/generate_qr/<int:user_id>')
+def generate_qr(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Generate the TOTP URI
+    totp = pyotp.TOTP(user.totp_secret)
+    uri = totp.provisioning_uri(user.email, issuer_name="PawPath")
+
+    # Create a QR code
+    img = qrcode.make(uri)
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+
+    return send_file(buf, mimetype="image/png")
+
+@app.route('/verify_totp', methods=['POST'])
+def verify_totp():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    totp_code = data.get('totp_code')
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Verify the TOTP code using the stored totp_secret
+    totp = pyotp.TOTP(user.totp_secret)
+    if totp.verify(totp_code):
+        return jsonify({'message': 'TOTP verified successfully!'}), 200
+    else:
+        return jsonify({'error': 'Invalid TOTP code'}), 400
 
 @app.route('/')
 def serve_index():
