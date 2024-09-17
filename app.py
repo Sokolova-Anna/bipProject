@@ -78,13 +78,15 @@ class MapLocation(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     place_type = db.Column(db.String(50), nullable=False)
+    verified = db.Column(db.Boolean, default=False, nullable=False)
 
-    def __init__(self, title, description, latitude, longitude, place_type):
+    def __init__(self, title, description, latitude, longitude, place_type, verified=False):
         self.title = title
         self.description = description
         self.latitude = latitude
         self.longitude = longitude
         self.place_type = place_type
+        self.verified = verified
 
 
 @app.route('/register', methods=['POST'])
@@ -256,7 +258,7 @@ def save_location():
 def get_locations():
     try:
         # Fetch all locations from the database
-        locations = MapLocation.query.all()
+        locations = MapLocation.query.filter_by(verified=True).all()
 
         # Convert the location objects to a list of dictionaries
         locations_list = [{
@@ -272,6 +274,45 @@ def get_locations():
     except Exception as e:
         logging.exception("Error retrieving locations")
         return jsonify({'error': 'Failed to retrieve locations'}), 500
+    
+
+
+@app.route('/admin/get_unverified_locations', methods=['GET'])
+def get_unverified_locations():
+    try:
+        # Query for all unverified locations
+        unverified_locations = MapLocation.query.filter_by(verified=False).all()
+
+        locations_list = [{
+            'id': loc.id,
+            'title': loc.title,
+            'description': loc.description,
+            'latitude': loc.latitude,
+            'longitude': loc.longitude,
+            'place_type': loc.place_type
+        } for loc in unverified_locations]
+
+        return jsonify(locations_list), 200
+    except Exception as e:
+        logging.exception("Error retrieving unverified locations")
+        return jsonify({'error': 'Failed to retrieve locations'}), 500
+    
+
+@app.route('/admin/verify_location/<int:location_id>', methods=['POST'])
+def verify_location(location_id):
+    try:
+        location = MapLocation.query.get(location_id)
+        if not location:
+            return jsonify({'error': 'Location not found'}), 404
+
+        location.verified = True
+        db.session.commit()
+
+        return jsonify({'message': f'Location {location_id} has been verified successfully.'}), 200
+    except Exception as e:
+        logging.exception("Error verifying location")
+        return jsonify({'error': 'Failed to verify location', 'details': str(e)}), 500
+
 
 @app.route('/')
 def serve_index():
