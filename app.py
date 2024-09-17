@@ -1,3 +1,4 @@
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -8,9 +9,9 @@ import qrcode
 from io import BytesIO
 from flask import send_file
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 logging.basicConfig(level=logging.DEBUG)
-
 
 app = Flask(__name__)
 
@@ -19,15 +20,22 @@ CORS(app)
 # Configure PostgreSQL database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pawuser:123456@localhost/pawpath_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = '93fb0ec21dd9e5a9d28dbfbdf9988c9cbfd185abf1a8f1f2' 
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
-# Swagger configuration
-SWAGGER_URL = '/swagger'  # Swagger UI will be available at localhost:5000/swagger
-API_URL = '/static/swagger.yaml'  # Path to the Swagger YAML file
+# Setup Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Redirect to login if not authenticated
 
-# Swagger UI blueprint setup
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
+# Swagger configuration
+SWAGGER_URL = '/swagger'
+API_URL = '/static/swagger.yaml'
+
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
@@ -40,11 +48,10 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 def swagger_yaml():
     return send_from_directory('.', 'swagger.yaml')
 
-# Define the User model
-class User(db.Model):
-
+# Define the User model with Flask-Login's UserMixin
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -52,7 +59,7 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     pet_name = db.Column(db.String(50), nullable=True)
     pet_breed = db.Column(db.String(50), nullable=True)
-    totp_secret = db.Column(db.String(100), nullable=True)  # TOTP
+    totp_secret = db.Column(db.String(100), nullable=True)
     banned = db.Column(db.Boolean, default=False, nullable=False)
     role = db.Column(db.String(10), default="user")
 
@@ -67,33 +74,16 @@ class User(db.Model):
         self.banned = False
         self.role = role
 
-# Define the MapLocation model
-class MapLocation(db.Model):
+# Flask-Login user loader
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-    __tablename__ = 'map_locations'
-
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(255), nullable=True)
-    latitude = db.Column(db.Float, nullable=False)
-    longitude = db.Column(db.Float, nullable=False)
-    place_type = db.Column(db.String(50), nullable=False)
-    verified = db.Column(db.Boolean, default=False, nullable=False)
-
-    def __init__(self, title, description, latitude, longitude, place_type, verified=False):
-        self.title = title
-        self.description = description
-        self.latitude = latitude
-        self.longitude = longitude
-        self.place_type = place_type
-        self.verified = verified
-
-
+# Registration route
 @app.route('/register', methods=['POST'])
 def register():
     try:
         data = request.get_json()
-
         name = data.get('name')
         email = data.get('email')
         login = data.get('login')
@@ -106,7 +96,7 @@ def register():
 
         if User.query.filter_by(email=email).first() or User.query.filter_by(login=login).first():
             return jsonify({'error': 'User already exists'}), 400
-            
+
         password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
         new_user = User(
@@ -119,7 +109,6 @@ def register():
             role="user"
         )
 
-        # Add the new user to the database
         db.session.add(new_user)
         db.session.commit()
 
@@ -129,6 +118,7 @@ def register():
         logging.exception("Error during registration")
         return jsonify({'error': 'Something went wrong'}), 500
 
+# Login route
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -141,23 +131,24 @@ def login():
     if user and bcrypt.check_password_hash(user.password, password):
         if user.banned:
             return jsonify({'error': 'You have been banned'}), 403
-        # Return a prompt for TOTP verification
+        
+        # Log the user in using Flask-Login
+        login_user(user)
+        
         return jsonify({'message': 'Login successful, please verify with TOTP', 'user_id': user.id, 'role': user.role}), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 400
 
-
+# QR code generation route
 @app.route('/generate_qr/<int:user_id>')
 def generate_qr(user_id):
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    # Generate the TOTP URI
     totp = pyotp.TOTP(user.totp_secret)
     uri = totp.provisioning_uri(user.email, issuer_name="PawPath")
 
-    # Create a QR code
     img = qrcode.make(uri)
     buf = BytesIO()
     img.save(buf, format="PNG")
@@ -165,6 +156,7 @@ def generate_qr(user_id):
 
     return send_file(buf, mimetype="image/png")
 
+# TOTP verification route
 @app.route('/verify_totp', methods=['POST'])
 def verify_totp():
     data = request.get_json()
@@ -175,16 +167,34 @@ def verify_totp():
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    # Verify the TOTP code using the stored totp_secret
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code):
         return jsonify({'message': 'TOTP verified successfully!'}), 200
     else:
         return jsonify({'error': 'Invalid TOTP code'}), 400
-    
 
+# Admin route - protected with login_required
+@app.route('/admin')
+@login_required
+def admin_panel():
+    if current_user.role == 'admin':
+        return send_from_directory('frontend', 'admin.html')
+    else:
+        return jsonify({'error': 'Unauthorized access'}), 403
+
+# Logout route
+@app.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({'message': 'Logged out successfully'}), 200
+
+# Block user route - protected with login_required and admin role check
 @app.route('/admin/block_user/<int:user_id>', methods=['POST'])
+@login_required
 def block_user(user_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized access'}), 403
     try:
         user = User.query.get(user_id)
         if not user:
@@ -200,10 +210,13 @@ def block_user(user_id):
     except Exception as e:
         logging.exception("Error during blocking user")
         return jsonify({'error': 'Failed to block user', 'details': str(e)}), 500
-    
 
+# Unblock user route - protected with login_required and admin role check
 @app.route('/admin/unblock_user/<int:user_id>', methods=['POST'])
+@login_required
 def unblock_user(user_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized access'}), 403
     try:
         user = User.query.get(user_id)
         if not user:
@@ -220,8 +233,9 @@ def unblock_user(user_id):
         logging.exception("Error during unblocking user")
         return jsonify({'error': 'Failed to unblock user', 'details': str(e)}), 500
 
-
+# Save location route
 @app.route('/save_location', methods=['POST'])
+@login_required
 def save_location():
     try:
         data = request.get_json()
@@ -231,11 +245,9 @@ def save_location():
         longitude = data.get('longitude')
         place_type = data.get('place_type')
 
-        # Validate the data
         if not title or not latitude or not longitude or not place_type:
             return jsonify({'error': 'Missing required fields'}), 400
 
-        # Create a new map location object
         new_location = MapLocation(
             title=title,
             description=description,
@@ -244,23 +256,21 @@ def save_location():
             place_type=place_type
         )
 
-        # Save the new location to the database
         db.session.add(new_location)
         db.session.commit()
 
         return jsonify({'message': 'Location saved successfully!'}), 201
 
     except Exception as e:
-        logging.exception("Error during saving location")  # This logs the detailed error
+        logging.exception("Error during saving location")
         return jsonify({'error': 'Failed to save location', 'details': str(e)}), 500
 
+# Retrieve verified locations
 @app.route('/get_locations', methods=['GET'])
 def get_locations():
     try:
-        # Fetch all locations from the database
         locations = MapLocation.query.filter_by(verified=True).all()
 
-        # Convert the location objects to a list of dictionaries
         locations_list = [{
             'id': loc.id,
             'title': loc.title,
@@ -274,13 +284,14 @@ def get_locations():
     except Exception as e:
         logging.exception("Error retrieving locations")
         return jsonify({'error': 'Failed to retrieve locations'}), 500
-    
 
-
+# Get unverified locations - admin only
 @app.route('/admin/get_unverified_locations', methods=['GET'])
+@login_required
 def get_unverified_locations():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized access'}), 403
     try:
-        # Query for all unverified locations
         unverified_locations = MapLocation.query.filter_by(verified=False).all()
 
         locations_list = [{
@@ -296,10 +307,13 @@ def get_unverified_locations():
     except Exception as e:
         logging.exception("Error retrieving unverified locations")
         return jsonify({'error': 'Failed to retrieve locations'}), 500
-    
 
+# Verify location - admin only
 @app.route('/admin/verify_location/<int:location_id>', methods=['POST'])
+@login_required
 def verify_location(location_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized access'}), 403
     try:
         location = MapLocation.query.get(location_id)
         if not location:
@@ -313,16 +327,21 @@ def verify_location(location_id):
         logging.exception("Error verifying location")
         return jsonify({'error': 'Failed to verify location', 'details': str(e)}), 500
 
-
+# Serve index page
 @app.route('/')
 def serve_index():
     return send_from_directory('frontend', 'index.html')
 
+# Serve admin page
 @app.route('/admin')
-def admin_panel():
-	return send_from_directory('frontend', 'admin.html')
+@login_required
+def admin():
+    if current_user.role == 'admin':
+        return send_from_directory('frontend', 'admin.html')
+    else:
+        return jsonify({'error': 'Unauthorized access'}), 403
 
-
+# Serve static files
 @app.route('/<path:path>')
 def serve_static_files(path):
     return send_from_directory('frontend', path)
@@ -330,5 +349,4 @@ def serve_static_files(path):
 # Start the Flask app
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-
 
