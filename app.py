@@ -53,8 +53,10 @@ class User(db.Model):
     pet_name = db.Column(db.String(50), nullable=True)
     pet_breed = db.Column(db.String(50), nullable=True)
     totp_secret = db.Column(db.String(100), nullable=True)  # TOTP
+    banned = db.Column(db.Boolean, default=False, nullable=False)
+    role = db.Column(db.String(10), default="user")
 
-    def __init__(self, name, email, login, password, pet_name, pet_breed):
+    def __init__(self, name, email, login, password, pet_name, pet_breed, role):
         self.name = name
         self.email = email
         self.login = login
@@ -62,6 +64,8 @@ class User(db.Model):
         self.pet_name = pet_name
         self.pet_breed = pet_breed
         self.totp_secret = pyotp.random_base32()
+        self.banned = False
+        self.role = role
 
 # Define the MapLocation model
 class MapLocation(db.Model):
@@ -109,7 +113,8 @@ def register():
             login=login,
             password=password_hash,
             pet_name=pet_name,
-            pet_breed=pet_breed
+            pet_breed=pet_breed,
+            role="user"
         )
 
         # Add the new user to the database
@@ -132,8 +137,10 @@ def login():
     user = User.query.filter_by(login=login, email=email).first()
 
     if user and bcrypt.check_password_hash(user.password, password):
+        if user.banned:
+            return jsonify({'error': 'You have been banned'}), 403
         # Return a prompt for TOTP verification
-        return jsonify({'message': 'Login successful, please verify with TOTP', 'user_id': user.id}), 200
+        return jsonify({'message': 'Login successful, please verify with TOTP', 'user_id': user.id, 'role': user.role}), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 400
 
@@ -172,6 +179,45 @@ def verify_totp():
         return jsonify({'message': 'TOTP verified successfully!'}), 200
     else:
         return jsonify({'error': 'Invalid TOTP code'}), 400
+    
+
+@app.route('/admin/block_user/<int:user_id>', methods=['POST'])
+def block_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        if user.banned:
+            return jsonify({'message': 'User is already banned'}), 400
+
+        user.banned = True
+        db.session.commit()
+
+        return jsonify({'message': f'User {user_id} has been banned successfully.'}), 200
+    except Exception as e:
+        logging.exception("Error during blocking user")
+        return jsonify({'error': 'Failed to block user', 'details': str(e)}), 500
+    
+
+@app.route('/admin/unblock_user/<int:user_id>', methods=['POST'])
+def unblock_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        if not user.banned:
+            return jsonify({'message': 'User is not banned'}), 400
+
+        user.banned = False
+        db.session.commit()
+
+        return jsonify({'message': f'User {user_id} has been unbanned successfully.'}), 200
+    except Exception as e:
+        logging.exception("Error during unblocking user")
+        return jsonify({'error': 'Failed to unblock user', 'details': str(e)}), 500
+
 
 @app.route('/save_location', methods=['POST'])
 def save_location():
@@ -231,11 +277,17 @@ def get_locations():
 def serve_index():
     return send_from_directory('frontend', 'index.html')
 
+@app.route('/admin')
+def admin_panel():
+	return send_from_directory('frontend', 'admin.html')
+
+
 @app.route('/<path:path>')
 def serve_static_files(path):
     return send_from_directory('frontend', path)
 
 # Start the Flask app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
+
 
